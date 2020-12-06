@@ -1,20 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.IO;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using System.ComponentModel;
 using ExpenditureManager.ObjectClasses;
 
 namespace ExpenditureManager
@@ -54,6 +45,7 @@ namespace ExpenditureManager
             isSaved = true;
 
             InitializeComponent();
+            Closing += OnClosing;
 
             DateSelectionCalendar.SelectedDate = DateTime.Now;
             DateSelectionCalendar.Focus();
@@ -68,7 +60,41 @@ namespace ExpenditureManager
 
         #region Setup
 
-        
+
+
+        #endregion
+
+        #region MainWindow Events
+
+        private void OnClosing(object sender, CancelEventArgs cea)
+        {
+            if (isSaved == false)
+            {
+                var result = MessageBox.Show("You have not saved your changes into the file yet. Do you want to save them now?",
+                    "Modification update to the file",
+                    MessageBoxButton.YesNoCancel,
+                    MessageBoxImage.Warning,
+                    MessageBoxResult.Yes);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    SaveToJsonFile();
+                    cea.Cancel = false;
+                }
+                else if (result == MessageBoxResult.No)
+                {
+                    cea.Cancel = false;
+                }
+                else if (result == MessageBoxResult.Cancel)
+                {
+                    cea.Cancel = true;
+                }
+            }
+            else
+            {
+                cea.Cancel = false;
+            }
+        }
 
         #endregion
 
