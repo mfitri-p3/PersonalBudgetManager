@@ -24,15 +24,36 @@ namespace ExpenditureManager
 
         #region Objects and Variables
 
-        private bool isInitialStartup = true; //Is the program starting up?
+        /// <summary>
+        /// Is the program starting up?
+        /// </summary>
+        private bool isInitialStartup = true;
 
-        private List<DayEntry> DayEntryList; //The entire list to hold on the values.
-        private DayEntry SelectedDayEntry; //To bind with EntriesDataGrid
-        private DateTime SelectedDateTime; 
+        /// <summary>
+        /// The entire list to hold on the values.
+        /// </summary>
+        private List<DayEntry> DayEntryList;
+        /// <summary>
+        /// To bind with EntriesDataGrid.
+        /// </summary>
+        private DayEntry SelectedDayEntry;
+        /// <summary>
+        /// Selected datetime when viewing the budget breakdown.
+        /// </summary>
+        private DateTime SelectedDateTime;
+        /// <summary>
+        /// Selected week number when viewing the budget breakdown.
+        /// </summary>
         private int SelectedWeekNum;
 
-        private string SavedLocation; //The storage file's full path.
-        private bool isSaved; //Used for prompting user if the file is not updated yet.
+        /// <summary>
+        /// The storage file's full path.
+        /// </summary>
+        private string SavedLocation;
+        /// <summary>
+        /// Used for prompting user if the file is not updated yet.
+        /// </summary>
+        private bool isSaved;
 
         #endregion
 
@@ -60,12 +81,15 @@ namespace ExpenditureManager
 
         #region Setup
 
-
-
         #endregion
 
         #region MainWindow Events
 
+        /// <summary>
+        /// Prompt to ask user to save progress before closing.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="cea"></param>
         private void OnClosing(object sender, CancelEventArgs cea)
         {
             if (isSaved == false)
@@ -101,9 +125,9 @@ namespace ExpenditureManager
         #region File Input and Output
 
         /// <summary>
-        /// Returns false value if it encounters errors when creating a new directory and file. 
+        /// Check location path of the data. If the folder or file not exists, it will auto create the relevant folder and file. 
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns false value if it encounters errors when creating a new directory and file.</returns>
         private bool CheckLocationExist()
         {
             try
@@ -151,9 +175,11 @@ namespace ExpenditureManager
                 {
                     string buffer = "";
 
-                    StreamReader sr = new StreamReader(SavedLocation);
-                    buffer = sr.ReadToEnd();
-                    sr.Close();
+                    using (StreamReader sr = new StreamReader(SavedLocation))
+                    {
+                        buffer = sr.ReadToEnd();
+                        sr.Close();
+                    }
 
                     //Deserialise it only when there is JSON content from the file.
                     if (!string.IsNullOrWhiteSpace(buffer))
@@ -174,7 +200,9 @@ namespace ExpenditureManager
                 MessageBox.Show(ex.Message, "OpenJsonFile error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
+        /// <summary>
+        /// Serialise the list to a JSON object, and then save it to a file.
+        /// </summary>
         private void SaveToJsonFile()
         {
             try
@@ -183,9 +211,11 @@ namespace ExpenditureManager
 
                 string buffer = JsonSerializer.Serialize(DayEntryList);
 
-                StreamWriter sw = new StreamWriter(SavedLocation);
-                sw.Write(buffer);
-                sw.Close();
+                using (StreamWriter sw = new StreamWriter(SavedLocation))
+                {
+                    sw.Write(buffer);
+                    sw.Close();
+                }
 
                 isSaved = true;
 
