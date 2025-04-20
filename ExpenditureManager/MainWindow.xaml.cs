@@ -127,8 +127,9 @@ namespace ExpenditureManager
         /// <summary>
         /// Check location path of the data. If the folder or file not exists, it will auto create the relevant folder and file. 
         /// </summary>
-        /// <returns>Returns false value if it encounters errors when creating a new directory and file.</returns>
-        private bool CheckLocationExist()
+        /// <param name="doCreateNewFile">Create the relevant folder and file if such item does not exists.</param>
+        /// <returns>Returns false value if it encounters errors when creating a new directory and file or does not exist at the moment.</returns>
+        private bool CheckLocationExist(bool doCreateNewFile)
         {
             try
             {
@@ -142,7 +143,7 @@ namespace ExpenditureManager
                         theFileName);
                 }
 
-                if (!File.Exists(SavedLocation))
+                if (!File.Exists(SavedLocation) && doCreateNewFile)
                 {
                     if (!Directory.Exists(SavedLocation))
                     {
@@ -155,9 +156,13 @@ namespace ExpenditureManager
                     //Close FileStream after creating the file,
                     //Else, OpenJsonFile and SaveToJsonFile will return error due to "existing process using the file".
                     objBuffer.Close();
-                }
 
-                return true;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
             catch (Exception)
             {
@@ -171,7 +176,7 @@ namespace ExpenditureManager
         {
             try
             {
-                if (CheckLocationExist())
+                if (CheckLocationExist(false))
                 {
                     string buffer = "";
 
@@ -207,7 +212,7 @@ namespace ExpenditureManager
         {
             try
             {
-                CheckLocationExist();
+                CheckLocationExist(true);
 
                 string buffer = JsonSerializer.Serialize(DayEntryList);
 
