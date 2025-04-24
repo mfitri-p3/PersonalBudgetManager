@@ -7,6 +7,7 @@ using System.IO;
 using System.Text.Json;
 using System.ComponentModel;
 using ExpenditureManager.ObjectClasses;
+using Microsoft.Win32;
 
 namespace ExpenditureManager
 {
@@ -234,6 +235,69 @@ namespace ExpenditureManager
 
         #endregion
 
+        #region Data Export
+
+        /// <summary>
+        /// Escape commas on string input for the CSV export.
+        /// </summary>
+        /// <param name="value">String input.</param>
+        /// <returns>String values with trimmed whitespaces and escaped commas.</returns>
+        private static string EscapeCommas(string value)
+        {
+            if (value == null)
+            {
+                return "";
+            }
+            else
+            {
+                return value.Trim().Replace("\"", "\"\"");
+            }
+        }
+
+        /// <summary>
+        /// Export the DayEntryList data to CSV form.
+        /// </summary>
+        private bool ExportEntriesToCsv()
+        {
+            bool status = false;
+            if (DayEntryList == null)
+            {
+                DayEntryList = new List<DayEntry>();
+            }
+
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.FileName = $"My Budget Report as of {DateTime.Now:yyyy-MM-dd}";
+            sfd.DefaultExt = ".csv";
+            sfd.Filter = "CSV Files (*.csv)|*.csv";
+            sfd.AddExtension = true;
+            bool? dialogResult = sfd.ShowDialog();
+            if (dialogResult == true)
+            {
+                string filePath = sfd.FileName;
+                if (!string.IsNullOrWhiteSpace(filePath))
+                {
+                    using (StreamWriter writer = new StreamWriter(filePath))
+                    {
+                        writer.WriteLine("Date,Category,Name,Recipient,Amount,Comment");
+
+                        foreach (DayEntry dayEntry in DayEntryList)
+                        {
+                            foreach (Entry entry in dayEntry.EntryList)
+                            {
+                                string line = $"{dayEntry.Date:dd-MM-yyyy},{EscapeCommas(entry.Category)},{EscapeCommas(entry.Name)},{EscapeCommas(entry.Recipient)},RM{entry.Amount:F2},{EscapeCommas(entry.Comment)}";
+                                writer.WriteLine(line);
+                            }
+                        }
+                    }
+                }
+                status = true;
+            }
+
+            return status;
+        }
+
+        #endregion
+
         #region Calendar and Calculation
 
         /// <summary>
@@ -415,6 +479,21 @@ namespace ExpenditureManager
             }
         }
 
+        private void ExportCsvMenu_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                bool exportStatus = ExportEntriesToCsv();
+                if (exportStatus)
+                {
+                    MessageBox.Show("Export as CSV successful.", "Export status", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Unable to export as CSV", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
 
         #endregion
 

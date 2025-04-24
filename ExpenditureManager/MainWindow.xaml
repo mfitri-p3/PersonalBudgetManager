@@ -40,7 +40,7 @@
             <MenuItem Style="{DynamicResource MenuStyle}" Header="File">
                 <MenuItem Header="Restore Record" x:Name="OpenRecordMenu" Click="OpenRecordMenu_Click"/>
                 <MenuItem Header="Save Record" x:Name="SaveRecordMenu" Click="SaveRecordMenu_Click"/>
-                <MenuItem Header="Export as CSV" Visibility="Collapsed"/>
+                <MenuItem Header="Export as CSV" x:Name="ExportCsvMenu" Click="ExportCsvMenu_Click"/>
             </MenuItem>
             <MenuItem Style="{DynamicResource MenuStyle}" Header="Application">
                 <MenuItem Header="About" Visibility="Collapsed"/>
